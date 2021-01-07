@@ -4,9 +4,11 @@
   tooth rpm sensor, provides a display of recommended spindle speed (rpm) best suited
   for machining the selected material, cutting diameter and tool type.
 
-  Lathe Helper Project Software as described in the February Issue of the Home Shop Machinist
+  Lathe Helper Project Software as described in the March/April 2021 issue of 
+  The Home Shop Machinist published by the Village Press.
+  
      Source:  https//github/glennto/LH_Project
-     glennt@palmnet.net
+     glennt@palmnet.net  1/6/2021
 
 ****************************************************/
   
@@ -69,15 +71,7 @@
 
   This device is not intended to directly control or automate lathe operations in any way.
 
-                  Version 1.7  12/26/2020
-  
-  Add liscense and author notices, modify text in introduction and cleaning up code comments around conditional blocks
-                    
-  Sketch uses 18994 bytes (58%) of program storage space. Maximum is 32256 bytes.
-  Global variables use 1233 bytes (60%) of dynamic memory, leaving 815 bytes for local variables. Maximum is 2048 bytes
-
-  
-                  Version 1.8  12/27/2020
+                 Version 1.8  12/27/2020
   
   Added conditional compile section for selecting between material lists Option A or Option B (set with define OPTION_A).
      Reference The Home Shop Machinist Article which defines Option A to use Little Machine Shop Article material list
@@ -97,7 +91,7 @@
   more room).
 
   Note: This is the first verified version of the Lathe Helper software (checked against an independant spread sheet for
-  each option and HSS/Carbide tooling at full range of material types and diameters). Good to go.
+  each option and HSS/Carbide tooling at full range of material types and diameters).
 
   Following for Option A and (B):
 
@@ -168,11 +162,11 @@ const byte NBR_TEETH = 1;
 //  starting display values of (material=aluminum, cutting diameter=1" and tool type=HSS)
 byte material_List_Index =  0, diameter_List_Index = 3, tool_List_Index = 0;
 
-//  Sometime smaller cutting diameters produce an excessively high computed rpm so lets limit high rpm
-#define MAXRPM 16000
+//  Sometimes smaller cutting diameters produce an excessively high computed rpm so we limit high rpm
+#define MAXRPM 4000
 
 //  Comment out next define if you want to use the 'OPTION B' material definitions
-//#define OPTION_A
+#define OPTION_A
 
 //************************************end simple configuration items*********************************************
 
@@ -193,9 +187,9 @@ const byte diameter_list_Length = 13, rpm_list_Length = 9, tool_list_Length = 1;
 //  be the same length.  The bottom one of a pair can be null ("") if ASTM code is not important to identify material.
 //
 //  Limited space for displaying AISI material codes required a coding scheme
-//  The designator code for ASTM numbers is coded as a combination of either actual values in a location or
-//  alternate values in a location (enclosed in parenthesis and separated by a /). A position that can contain
-//  any alphanumberic character is designated with an *.
+//  The designator code for ASTM numbers is coded as a combination of either actual values in a location,
+//  alternate values in a location (enclosed in parenthesis and separated by a /) or a wild card position that can contain
+//  any alphanumberic character (designated with an *).
 //
 //  Example: the ASTM codes for Toolsteels WX, OX and AX are encoded as '(W/O/A)X'.
 //  in some cases two designators separated by a space are encoded.
@@ -248,7 +242,7 @@ const float diameter_list_Sizes[] = {0.125, 0.250, 0.375, 0.500, 0.750, 1.00, 1.
 //  (and possibly only the authors lathe if the pulley diameters are unique).
 //  These lists define spindle rpm for a 1725 rpm motor with two pulleys
 //  and a driving an idler shaft with four pulleys. Values must be arrainged in descending order.
-//  The two lists must match (3500  must 
+//  The two lists must match. 
 const int pulley_rpm_List[] = {3500, 2943, 2139, 1347, 1163, 942, 845, 532, 372, 0};
 //  Corresponding pulley codes are "motor pulley (1/2) - idle pulley (1/2/3/4)"
 const String belt_config_List[] = {"1-4+", "2-1", "2-2", "2-3", "1-4", "2-4", "1-2", "1-3", "1-4", "X-X"};
