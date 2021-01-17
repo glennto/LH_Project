@@ -71,35 +71,25 @@
 
   This device is not intended to directly control or automate lathe operations in any way.
 
-                 Version 1.8  12/27/2020
+
+                      Version 1.10 01/14/2021
   
-  Added conditional compile section for selecting between material lists Option A or Option B (set with define OPTION_A).
-     Reference The Home Shop Machinist Article which defines Option A to use Little Machine Shop Article material list
-     and Option B material list derived from Author's buying habits.
-  In this version the Option A material list was also rearranged to match the Option A definition in the article  
-  Cleaned up code comments everywhere. Rearrange splash screen.
-  Create configuration item MAXRPM that applies a ceiling to computed rpm (typically case of smaller cutting diamteters)
-                    
-  Sketch uses 19122 bytes (59%) of program storage space. Maximum is 32256 bytes.
-  Global variables use 1233 bytes (60%) of dynamic memory, leaving 815 bytes for local variables. Maximum is 2048 bytes..
+  Fixed the 'display zero rpm after spindle stop' problem. By adding an additional test at
+  end of loop code to detect loss of rpm sensor pulses and set rpm = 0 for that case.
 
-                    Version 1.9  12/31/2020
+
+                      Version 0.10 01/15/2021
   
-  This version addresses program size problem with Option B (mangled display text).  Search for and modify coding
-  to reduce compiled code size (eliminated " dia" redundancy in diameter list and spaces in metals list).
-  Added F() option to tft.serial.print() functions that use strings (moves string from dynamic to program memory where there is
-  more room).
+  Fixed listing problem in lathe pulley codes ('1-4' was listed twice, changed incorrect one to '1-1')
+  This version is distribution release version.
 
-  Note: This is the first verified version of the Lathe Helper software (checked against an independant spread sheet for
-  each option and HSS/Carbide tooling at full range of material types and diameters).
+  Following sketch sizes for Option A or B compile:
 
-  Following for Option A and (B):
+  (A) Sketch uses 20126 bytes (62%) of program storage space. Maximum is 32256 bytes.
+Global variables use 1145 bytes (55%) of dynamic memory, leaving 903 bytes for local variables. Maximum is 2048 bytes
 
-  (A) Sketch uses 19298 bytes (59%) of program storage space. Maximum is 32256 bytes.
-  Global variables use 1133 bytes (55%) of dynamic memory, leaving 915 bytes for local variables. Maximum is 2048 bytes.
-
-  (B) Sketch uses 19358 bytes (60%) of program storage space. Maximum is 32256 bytes.
-  Global variables use 1169 bytes (57%) of dynamic memory, leaving 879 bytes for local variables. Maximum is 2048 bytes..
+  (B)Sketch uses 20184 bytes (62%) of program storage space. Maximum is 32256 bytes.
+Global variables use 1179 bytes (57%) of dynamic memory, leaving 869 bytes for local variables. Maximum is 2048 bytes..
  ************************************************************************************************************************/
 
 #include "SPI.h"
@@ -108,7 +98,7 @@
 #include "Adafruit_STMPE610.h"
 
 // Lathe Helper definitions next
-String VERSION="Ver 1.9";
+String VERSION="Ver 0.10";
 
 // This is calibration data for the raw touch data to the screen coordinates
 #define TS_MINX 150
@@ -164,9 +154,12 @@ byte material_List_Index =  0, diameter_List_Index = 3, tool_List_Index = 0;
 
 //  Sometimes smaller cutting diameters produce an excessively high computed rpm so we limit high rpm
 #define MAXRPM 4000
+//  Need to define a minimum rpm as well in order to force zero rpms as interrupt pulse intervals fall
+//  off toward zero
+#define MINRPM 5
 
 //  Comment out next define if you want to use the 'OPTION B' material definitions
-#define OPTION_A
+//#define OPTION_A
 
 //************************************end simple configuration items*********************************************
 
@@ -238,14 +231,13 @@ const String diameter_List[] = {"1/8\"", "1/4\"", "3/8\"", "1/2\"", "3/4\"", "1\
 //  decimal equivalents of the diameter_List[]:
 const float diameter_list_Sizes[] = {0.125, 0.250, 0.375, 0.500, 0.750, 1.00, 1.250, 1.50, 1.750, 2.000, 2.500, 3.000, 3.500, 4.000};
 
-//  the following lists are specific to the Atlas 6" lathe and possibly to a subset of these lathes
-//  (and possibly only the authors lathe if the pulley diameters are unique).
-//  These lists define spindle rpm for a 1725 rpm motor with two pulleys
-//  and a driving an idler shaft with four pulleys. Values must be arrainged in descending order.
+//  the following lists are specific to the authors Atlas 6". Values were derived from actual pulley
+//  diameter measurements on two motor pulleys and four spindle pulleys (8 combos) plus 3500/0 rpm added list end values.
+//  Values must be arrainged in descending order.
 //  The two lists must match. 
 const int pulley_rpm_List[] = {3500, 2943, 2139, 1347, 1163, 942, 845, 532, 372, 0};
 //  Corresponding pulley codes are "motor pulley (1/2) - idle pulley (1/2/3/4)"
-const String belt_config_List[] = {"1-4+", "2-1", "2-2", "2-3", "1-4", "2-4", "1-2", "1-3", "1-4", "X-X"};
+const String belt_config_List[] = {"1-4+", "2-1", "2-2", "2-3", "1-1", "2-4", "1-2", "1-3", "1-4", "X-X"};
 
 //  The last list is for the two different types of tooling
 const String tool_List[] = {"  HSS", "CARBIDE"};
@@ -569,5 +561,15 @@ void loop() {
       count = 1;
     }
   }
+
+//  Make the approach toward zero rpm work with the following
+  save_Time = micros();
+  if ((save_Time - Time) > 2000000){  //  No pulse for 2 sec or greater
+    rpm = 0;
+    Time = save_Time;
+    display_RPMS();
+  }
+  
 #endif //End DISPLAY_ACTUAL_RPM block
+    
 }
