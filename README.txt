@@ -79,6 +79,8 @@ LH_Project_Addendum.md
 
 VERSION HISTORY
 
-LH_Helper_V1.7 is the baseline initial release. Future releases, if needed, will
-appear on the github website and will be described herein.
+  Version 0.10 01/15/2021
+  
+  Fixed listing problem in lathe pulley codes ('1-4' was listed twice, changed incorrect one to '1-1')
+  This version is distribution release version.
 
