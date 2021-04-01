@@ -34,7 +34,7 @@ All documentation, excepting item 2 below, is hosted on the above referenced git
 	5. Project addendum/errata information described in
 	LH_Addendum.md
 
-No operations manual other than item 2 above is provided.
+No operations manual other than item 2 above is provided
 
 
 HARDWARE REQUIREMENTS
