@@ -84,3 +84,7 @@ VERSION HISTORY
   Fixed listing problem in lathe pulley codes ('1-4' was listed twice, changed incorrect one to '1-1')
   This version is distribution release version.
 
+  Version 0.50 09/15/2023
+
+  Added LH_Panel.jpg
+
